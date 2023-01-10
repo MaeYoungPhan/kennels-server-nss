@@ -6,6 +6,7 @@ from views import get_single_employee, get_all_employees
 from views import get_single_customer, get_all_customers
 from views import create_animal, create_location, create_employee, create_customer
 from views import delete_animal, delete_employee, delete_customer, delete_location
+from views import update_animal, update_employee, update_location, update_customer
 
 
 # Here's a class. It inherits from another class.
@@ -151,7 +152,26 @@ class HandleRequests(BaseHTTPRequestHandler):
     # A method that handles any PUT request.
     def do_PUT(self):
         """Handles PUT requests to the server"""
-        self.do_PUT()
+        self._set_headers(204)
+        content_len = int(self.headers.get('content-length', 0))
+        post_body = self.rfile.read(content_len)
+        post_body = json.loads(post_body)
+
+        # Parse the URL
+        (resource, id) = self.parse_url(self.path)
+
+        # Update a single resource from the list
+        if resource == "animals":
+            update_animal(id, post_body)
+        elif resource == "locations":
+            update_location(id, post_body)
+        elif resource == "employees":
+            update_employee(id, post_body)
+        elif resource == "customers":
+            update_customer(id, post_body)
+
+            # Encode the new resource and send in response
+            self.wfile.write("".encode())
 
     def _set_headers(self, status):
         # Notice this Docstring also includes information about the arguments passed to the function
