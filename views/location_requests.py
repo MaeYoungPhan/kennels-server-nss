@@ -70,7 +70,7 @@ def delete_location(id):
 
 
 def update_location(id, new_location):
-    """args int id, json string location, function finds location dictionary, replaces with new one """
+    """args int id,json string location,function finds location dictionary,replaces with new one """
     # Iterate the LOCATIONS list, but use enumerate() so that
     # you can access the index value of each item.
     for index, location in enumerate(LOCATIONS):
