@@ -79,7 +79,7 @@ def delete_customer(id):
 
 
 def update_customer(id, new_customer):
-    """args int id, json string customer, function finds customer dictionary, replaces with new one """
+    """args int id,json string customer,function finds customer dictionary,replaces with new one """
     # Iterate the CUSTOMERS list, but use enumerate() so that
     # you can access the index value of each item.
     for index, customer in enumerate(CUSTOMERS):

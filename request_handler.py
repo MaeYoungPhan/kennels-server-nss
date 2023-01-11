@@ -47,7 +47,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         """Handles GET requests to the server
         """
         # Set the response code to 'Ok'
-        self._set_headers(200)
+        # self._set_headers(200)
         response = {}  # Default response
 
         # Your new console.log() that outputs to the terminal
@@ -60,6 +60,12 @@ class HandleRequests(BaseHTTPRequestHandler):
         if resource == "animals":
             if id is not None:
                 response = get_single_animal(id)
+                if response is not None:
+                    self._set_headers(200)
+
+                elif response is None:
+                    self._set_headers(404)
+                    response = { "message": f"Animal {id} is a figment of your imagination" }
 
             else:
                 response = get_all_animals()
@@ -114,8 +120,12 @@ class HandleRequests(BaseHTTPRequestHandler):
         elif resource == "locations":
             new_location = None
             new_location = create_location(post_body)
-        # Encode the new location and send in response
-            self.wfile.write(json.dumps(new_location).encode())
+            if "name" in new_location and "address" in new_location:
+                # Encode the new location and send in response
+                self.wfile.write(json.dumps(new_location).encode())
+            else:
+                self._set_headers(400)
+
         elif resource == "employees":
             new_employee = None
             new_employee = create_employee(post_body)
