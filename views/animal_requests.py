@@ -1,3 +1,6 @@
+import sqlite3
+import json
+from models import Animal
 from .customer_requests import get_single_customer
 from .location_requests import get_single_location
 
