@@ -18,3 +18,4 @@ from .animal_requests import update_animal
 from .customer_requests import update_customer
 from .location_requests import update_location
 from .employee_requests import update_employee
+from .customer_requests import get_customers_by_email
