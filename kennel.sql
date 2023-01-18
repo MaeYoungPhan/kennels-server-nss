@@ -71,12 +71,6 @@ SELECT
 FROM animal a
 WHERE a.id = 5
 
-SELECT * FROM location
+SELECT * FROM animal WHERE status LIKE "treatment"
 
--- Get only the customer rows where the `id` field value is x
--- SELECT
---     l.id,
---     l.name,
---     l.address
--- FROM location l
--- WHERE l.id = 1
+INSERT INTO `Animal` VALUES (null, "Daps", "Kennel", "Boxer", 2, 2)
