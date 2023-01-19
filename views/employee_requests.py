@@ -1,6 +1,6 @@
 import sqlite3
 import json
-from models import Employee
+from models import Employee, Location
 
 EMPLOYEES = EMPLOYEES = [
     {
@@ -32,8 +32,12 @@ def get_all_employees():
             e.id,
             e.name,
             e.address,
-            e.location_id
+            e.location_id,
+            l.name location_name,
+            l.address location_address
         FROM employee e
+        JOIN location l
+            ON l.id = e.location_id
         """)
 
         # Initialize an empty list to hold all customer representations
@@ -51,6 +55,14 @@ def get_all_employees():
             # Employee class above.
             employee = Employee(row['id'], row['name'], row['address'],
                             row['location_id'])
+            
+            # Create a Location instance from the current row
+            location = Location(row['id'], row['location_name'], row['location_address'])
+
+            del location.id
+
+            # Add the dictionary representation of the location to the animal
+            employee.location = location.__dict__
 
             employees.append(employee.__dict__)
 
@@ -130,28 +142,38 @@ def create_employee(employee):
 
 
 def delete_employee(id):
-    """Function deletes a single employee by id. arg of id"""
-    # Initial -1 value for employee index, in case one isn't found
-    employee_index = -1
+    """Deletes single employee by id. Args: id(int), Returns: """""
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        db_cursor = conn.cursor()
 
-    # Iterate the EMPLOYEES list, but use enumerate() so that you
-    # can access the index value of each item
-    for index, employee in enumerate(EMPLOYEES):
-        if employee["id"] == id:
-            # Found the employee. Store the current index.
-            employee_index = index
-
-    # If the employee was found, use pop(int) to remove it from list
-    if employee_index >= 0:
-        EMPLOYEES.pop(employee_index)
+        db_cursor.execute("""
+        DELETE FROM employee
+        WHERE id = ?
+        """, (id, ))
 
 
 def update_employee(id, new_employee):
-    """args int id, json string employee,function finds employee dictionary,replaces with new one """
-    # Iterate the EMPLOYEES list, but use enumerate() so that
-    # you can access the index value of each item.
-    for index, employee in enumerate(EMPLOYEES):
-        if employee["id"] == id:
-            # Found the customer. Update the value.
-            EMPLOYEES[index] = new_employee
-            break
+    """args int id, json string employee, function finds employee dictionary, replaces with new one """
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        UPDATE Employee
+            SET
+                name = ?,
+                address = ?,
+                location_id = ?
+        WHERE id = ?
+        """, (new_employee['name'], new_employee['address'],
+            new_employee['location_id'], id, ))
+
+        # Were any rows affected?
+        # Did the client send an `id` that exists?
+        rows_affected = db_cursor.rowcount
+
+    if rows_affected == 0:
+        # Forces 404 response by main module
+        return False
+    else:
+        # Forces 204 response by main module
+        return True
