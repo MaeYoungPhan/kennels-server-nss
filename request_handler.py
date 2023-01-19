@@ -64,6 +64,18 @@ class HandleRequests(BaseHTTPRequestHandler):
                     response = get_single_customer(id)
                 else:
                     response = get_all_customers()
+            
+            elif resource == "locations":
+                if id is not None:
+                    response = get_single_location(id)
+                else:
+                    response = get_all_locations()
+            
+            elif resource == "employees":
+                if id is not None:
+                    response = get_single_employee(id)
+                else:
+                    response = get_all_employees()
 
         else: # There is a ? in the path, run the query param functions
             (resource, query) = parsed
@@ -182,6 +194,14 @@ class HandleRequests(BaseHTTPRequestHandler):
         if resource == "animals":
             success = update_animal(id, post_body)
         # rest of the elif's
+        elif resource == "customers":
+            success = update_customer(id, post_body)
+        
+        elif resource == "locations":
+            success = update_location(id, post_body)
+        
+        elif resource == "employees":
+            success = update_employee(id, post_body)
 
         if success:
             self._set_headers(204)
