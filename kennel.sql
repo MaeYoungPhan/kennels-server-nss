@@ -92,3 +92,10 @@ JOIN Location l
 		ON c.id = a.customer_id
 
 SELECT * FROM Animal ORDER BY id DESC;
+
+SELECT * FROM Employee ORDER BY id DESC;
+
+ALTER TABLE Employee
+ADD animal_id integer
+
+DELETE FROM Employee WHERE id = 6

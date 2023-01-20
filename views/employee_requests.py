@@ -33,6 +33,7 @@ def get_all_employees():
             e.name,
             e.address,
             e.location_id,
+            e.animal_id,
             l.name location_name,
             l.address location_address
         FROM employee e
@@ -54,7 +55,7 @@ def get_all_employees():
             # exact order of the parameters defined in the
             # Employee class above.
             employee = Employee(row['id'], row['name'], row['address'],
-                            row['location_id'])
+                            row['location_id'], row['animal_id'])
             
             # Create a Location instance from the current row
             location = Location(row['id'], row['location_name'], row['location_address'])
@@ -83,7 +84,8 @@ def get_single_employee(id):
             e.id,
             e.name,
             e.address,
-            e.location_id
+            e.location_id,
+            e.animal_id
         FROM employee e
         WHERE e.id = ?
         """, ( id, ))
@@ -93,7 +95,7 @@ def get_single_employee(id):
 
         # Create an employee instance from the current row
         employee = Employee(data['id'], data['name'], data['address'],
-                            data['location_id'])
+                            data['location_id'], data['animal_id'])
 
         return employee.__dict__
 
@@ -109,7 +111,8 @@ def get_employees_by_location(location):
             e.id,
             e.name,
             e.address,
-            e.location_id
+            e.location_id,
+            e.animal_id
         from Employee e
         WHERE e.location_id = ?
         """, ( location, ))
@@ -118,27 +121,35 @@ def get_employees_by_location(location):
         dataset = db_cursor.fetchall()
 
         for row in dataset:
-            employee = Employee(row['id'], row['name'], row['address'], row['location_id'])
+            employee = Employee(row['id'], row['name'], row['address'], row['location_id'], row['animal_id'])
             employees.append(employee.__dict__)
 
     return employees
 
-def create_employee(employee):
+def create_employee(new_employee):
     """Args: employee (json string), returns new dictionary with id property added"""
-    # Get the id value of the last employee in the list
-    max_id = EMPLOYEES[-1]["id"]
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        db_cursor = conn.cursor()
 
-    # Add 1 to whatever that number is
-    new_id = max_id + 1
+        db_cursor.execute("""
+        INSERT INTO Employee
+            ( name, address, location_id, animal_id )
+        VALUES
+            ( ?, ?, ?, ?);
+        """, (new_employee['name'], new_employee['address'],
+            new_employee['locationId'], new_employee['animalId'] ))
 
-    # Add an `id` property to the employee dictionary
-    employee["id"] = new_id
+        # The `lastrowid` property on the cursor will return
+        # the primary key of the last thing that got added to
+        # the database.
+        id = db_cursor.lastrowid
 
-    # Add the employee dictionary to the list
-    EMPLOYEES.append(employee)
+        # Add the `id` property to the employee dictionary that
+        # was sent by the client so that the client sees the
+        # primary key in the response.
+        new_employee['id'] = id
 
-    # Return the dictionary with `id` property added
-    return employee
+    return new_employee
 
 
 def delete_employee(id):
@@ -162,10 +173,11 @@ def update_employee(id, new_employee):
             SET
                 name = ?,
                 address = ?,
-                location_id = ?
+                location_id = ?,
+                animal_id = ?
         WHERE id = ?
         """, (new_employee['name'], new_employee['address'],
-            new_employee['location_id'], id, ))
+            new_employee['location_id'], new_employee['animal_id'], id ))
 
         # Were any rows affected?
         # Did the client send an `id` that exists?

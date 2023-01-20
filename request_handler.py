@@ -135,7 +135,7 @@ class HandleRequests(BaseHTTPRequestHandler):
                 self._set_headers(400)
 
                 new_location = {
-                    "message": f'{"name is required"}' if "name" not in post_body else "" f'{"address is required"}' if "address" not in post_body else ""
+                "message": f'{"name is required"}' if "name" not in post_body else "" f'{"address is required"}' if "address" not in post_body else ""
                 }
 
             self.wfile.write(json.dumps(new_location).encode())
@@ -146,6 +146,7 @@ class HandleRequests(BaseHTTPRequestHandler):
             new_employee = create_employee(post_body)
         # Encode the new employee and send in response
             self.wfile.write(json.dumps(new_employee).encode())
+
         elif resource == "customers":
             self._set_headers(201)
             new_customer = None
